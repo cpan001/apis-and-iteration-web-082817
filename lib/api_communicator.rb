@@ -3,8 +3,6 @@ require 'json'
 require 'pry'
 require_relative './command_line_interface'
 
-
-
 def api_request(urls)
 
     urls.inject([]){ |array, url|
@@ -19,24 +17,22 @@ def api_request(urls)
 
 end
 
-def film_helper(character_hash, character)
+#
 
-
+def get_char_movie_urls(character_hash, character)
+    until (character_hash["results"].find { |c| c["name"].downcase == character.downcase})
+      puts "Not a valid character"
+      character = get_character_from_user
+    end
     character_hash["results"].each { |char|
-        return char['films'] if char["name"].downcase == character
-
+    return char["films"] if char["name"].downcase == character.downcase
     }
-
 end
 
-
 def get_character_movies_from_api(character)
-  #make the web request
-  all_characters = RestClient.get('http://www.swapi.co/api/people/')
-  character_hash = JSON.parse(all_characters)
 
-  # iterate over the character hash to find the collection of `films` for the given
-  #   `character`
+    all_characters = RestClient.get('http://www.swapi.co/api/people/')
+    character_hash = JSON.parse(all_characters)
 
     char_movies = film_helper(character_hash, character)
 
@@ -44,6 +40,21 @@ def get_character_movies_from_api(character)
 
 end
 
+#
+
+def film_helper(character_hash, character)
+
+    until (character_hash["results"].find { |c| c["name"].downcase == character.downcase})
+        puts "Not a valid character"
+        character = get_character_from_user
+    end
+        character_hash["results"].each { |char|
+        return char["films"] if char["name"].downcase == character.downcase
+    }
+
+end
+
+#
 
 def parse_character_movies(films_hash)
 
@@ -54,7 +65,12 @@ def parse_character_movies(films_hash)
     end
 end
 
+#
+
 def show_character_movies(character)
+
   films_hash = get_character_movies_from_api(character)
+
   parse_character_movies(films_hash)
+
 end
