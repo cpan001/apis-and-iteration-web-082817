@@ -5,7 +5,7 @@ require_relative './command_line_interface'
 
 def api_request(urls)
 
-    urls.inject([]){ |array, url|
+    urls.inject([]) { |array, url|
 
         api_string = RestClient.get(url)
 
@@ -29,15 +29,24 @@ def get_char_movie_urls(character_hash, character)
     }
 end
 
+#------------------------------------------------------
+
+
+
 def get_character_movies_from_api(character)
 
     all_characters = RestClient.get('http://www.swapi.co/api/people/')
     character_hash = JSON.parse(all_characters)
 
+    page = 2
+    while page < 10
+        all_characters = RestClient.get("http://www.swapi.co/api/people/?page=#{page}")
+        new_characters = JSON.parse(all_characters)["results"]
+        character_hash["results"] += new_characters
+        page += 1
+    end
     char_movies = film_helper(character_hash, character)
-
     api_request(char_movies)
-
 end
 
 #
